@@ -25,3 +25,10 @@
     "safe-buffer": "5.1.2",
     "uid-safe": "2.1.5"
   },
+  "files": [
+    "lib/",
+    "History.md",
+    "LICENSE",
+    "index.js",
+    "Readme.md"
+  ],
