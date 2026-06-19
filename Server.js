@@ -86,3 +86,23 @@ app.post('/api/register', async (req, res) => {
     if (!/^[a-zA-Z0-9_]+$/.test(username)) {
         return res.status(400).json({ error: 'Username can only contain letters, numbers, and underscores' });
     }
+
+    try {
+        // Hash password with bcrypt
+        const hashedPassword = await bcrypt.hash(password, 10);
+        
+        db.run('INSERT INTO users (username, password) VALUES (?, ?)', 
+            [username, hashedPassword], 
+            function(err) {
+                if (err) {
+                    if (err.message.includes('UNIQUE')) {
+                        return res.status(400).json({ error: 'Username already exists' });
+                    }
+                    return res.status(500).json({ error: 'Database error' });
+                }
+                res.json({ success: true, message: 'Registration successful! Please login.' });
+            });
+    } catch (err) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
