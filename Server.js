@@ -68,3 +68,8 @@ app.get('/register', (req, res) => {
 app.get('/dashboard', isAuthenticated, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
+
+// API: Register new user
+app.post('/api/register', async (req, res) => {
+    const { username, password } = req.body;
+    
