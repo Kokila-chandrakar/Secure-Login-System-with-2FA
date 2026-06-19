@@ -36,3 +36,12 @@ db.run(`CREATE TABLE IF NOT EXISTS users (
     twofa_secret TEXT,
     twofa_enabled INTEGER DEFAULT 0
 )`);
+
+// Helper: check if user is authenticated
+function isAuthenticated(req, res, next) {
+    if (req.session.userId) {
+        next();
+    } else {
+        res.redirect('/login');
+    }
+}
