@@ -57,3 +57,10 @@ app.get('/login', (req, res) => {
     }
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
+
+app.get('/register', (req, res) => {
+    if (req.session.userId) {
+        return res.redirect('/dashboard');
+    }
+    res.sendFile(path.join(__dirname, 'public', 'register.html'));
+});
