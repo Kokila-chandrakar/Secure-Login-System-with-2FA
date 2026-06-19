@@ -24,3 +24,15 @@ app.use(session({
         maxAge: 30 * 60 * 1000 // 30 minutes
     }
 }));
+
+// Initialize SQLite database
+const db = new sqlite3.Database('./users.db');
+
+// Create users table with 2FA support
+db.run(`CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    twofa_secret TEXT,
+    twofa_enabled INTEGER DEFAULT 0
+)`);
