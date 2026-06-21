@@ -140,3 +140,11 @@ app.post('/api/login', (req, res) => {
                 return res.status(401).json({ error: 'Invalid 2FA code' });
             }
         }
+
+        // Create session
+        req.session.userId = user.id;
+        req.session.username = user.username;
+        
+        res.json({ success: true, redirect: '/dashboard' });
+    });
+});
