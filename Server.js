@@ -106,3 +106,11 @@ app.post('/api/register', async (req, res) => {
         res.status(500).json({ error: 'Server error' });
     }
 });
+
+// API: Login
+app.post('/api/login', (req, res) => {
+    const { username, password, twofaToken } = req.body;
+    
+    if (!username || !password) {
+        return res.status(400).json({ error: 'Username and password required' });
+    }
