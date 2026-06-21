@@ -206,3 +206,11 @@ app.post('/api/disable-2fa', isAuthenticated, (req, res) => {
         res.json({ success: true, message: '2FA disabled' });
     });
 });
+
+// API: Get current user info
+app.get('/api/user', isAuthenticated, (req, res) => {
+    db.get('SELECT id, username, twofa_enabled FROM users WHERE id = ?', [req.session.userId], (err, user) => {
+        if (err || !user) return res.status(500).json({ error: 'User not found' });
+        res.json(user);
+    });
+});
