@@ -114,3 +114,12 @@ app.post('/api/login', (req, res) => {
     if (!username || !password) {
         return res.status(400).json({ error: 'Username and password required' });
     }
+    // Use parameterized query to prevent SQL injection
+    db.get('SELECT * FROM users WHERE username = ?', [username], async (err, user) => {
+        if (err) return res.status(500).json({ error: 'Database error' });
+        if (!user) return res.status(401).json({ error: 'Invalid credentials' });
+        
+        // Verify password
+        const validPassword = await bcrypt.compare(password, user.password);
+        if (!validPassword) return res.status(401).json({ error: 'Invalid credentials' });
+        
