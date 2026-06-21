@@ -148,3 +148,21 @@ app.post('/api/login', (req, res) => {
         res.json({ success: true, redirect: '/dashboard' });
     });
 });
+
+// API: Setup 2FA
+app.post('/api/setup-2fa', isAuthenticated, (req, res) => {
+    const userId = req.session.userId;
+    
+    // Generate secret for user
+    const secret = speakeasy.generateSecret({ length: 20, name: `SecureApp:${req.session.username}` });
+    
+    db.run('UPDATE users SET twofa_secret = ? WHERE id = ?', [secret.base32, userId], (err) => {
+        if (err) return res.status(500).json({ error: 'Failed to save 2FA secret' });
+        
+        // Generate QR code
+        QRCode.toDataURL(secret.otpauth_url, (err, qrCodeUrl) => {
+            if (err) return res.status(500).json({ error: 'Failed to generate QR code' });
+            res.json({ secret: secret.base32, qrCode: qrCodeUrl });
+        });
+    });
+});
