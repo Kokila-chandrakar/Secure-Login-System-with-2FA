@@ -166,3 +166,33 @@ app.post('/api/setup-2fa', isAuthenticated, (req, res) => {
         });
     });
 });
+
+// API: Verify and enable 2FA
+app.post('/api/enable-2fa', isAuthenticated, (req, res) => {
+    const { token } = req.body;
+    const userId = req.session.userId;
+    
+    if (!token) return res.status(400).json({ error: 'Token required' });
+    
+    db.get('SELECT twofa_secret FROM users WHERE id = ?', [userId], (err, user) => {
+        if (err || !user || !user.twofa_secret) {
+            return res.status(500).json({ error: '2FA not setup' });
+        }
+        
+        const verified = speakeasy.totp.verify({
+            secret: user.twofa_secret,
+            encoding: 'base32',
+            token: token,
+            window: 1
+        });
+        
+        if (!verified) {
+            return res.status(401).json({ error: 'Invalid verification code' });
+        }
+        
+        db.run('UPDATE users SET twofa_enabled = 1 WHERE id = ?', [userId], (err) => {
+            if (err) return res.status(500).json({ error: 'Failed to enable 2FA' });
+            res.json({ success: true, message: '2FA enabled successfully!' });
+        });
+    });
+});
