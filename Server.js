@@ -196,3 +196,13 @@ app.post('/api/enable-2fa', isAuthenticated, (req, res) => {
         });
     });
 });
+
+// API: Disable 2FA
+app.post('/api/disable-2fa', isAuthenticated, (req, res) => {
+    const userId = req.session.userId;
+    
+    db.run('UPDATE users SET twofa_enabled = 0, twofa_secret = NULL WHERE id = ?', [userId], (err) => {
+        if (err) return res.status(500).json({ error: 'Failed to disable 2FA' });
+        res.json({ success: true, message: '2FA disabled' });
+    });
+});
