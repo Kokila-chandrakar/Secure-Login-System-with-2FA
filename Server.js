@@ -122,4 +122,21 @@ app.post('/api/login', (req, res) => {
         // Verify password
         const validPassword = await bcrypt.compare(password, user.password);
         if (!validPassword) return res.status(401).json({ error: 'Invalid credentials' });
-        
+
+        // Check 2FA if enabled
+        if (user.twofa_enabled) {
+            if (!twofaToken) {
+                return res.status(200).json({ requiresTwoFactor: true, userId: user.id });
+            }
+            
+            const verified = speakeasy.totp.verify({
+                secret: user.twofa_secret,
+                encoding: 'base32',
+                token: twofaToken,
+                window: 1
+            });
+            
+            if (!verified) {
+                return res.status(401).json({ error: 'Invalid 2FA code' });
+            }
+        }
